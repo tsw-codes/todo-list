@@ -2,7 +2,7 @@
 
 A beautiful, minimalist desktop todo list widget built with Electron. Stay organized with a floating, always-on-top task manager that sits elegantly on your desktop.
 
-![Todo Widget Screenshot](to-do-list.png)
+
 
 ## ✨ Features
 
