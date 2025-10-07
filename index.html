@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo List Widget</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: content-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        html, body {
+            width: 420px;
+            height: 500px;
+            overflow: hidden;
+            background: transparent;
+        }
+        
+        body {
+            width: 420px;
+            height: 600px;
+            overflow: hidden;
+            background: #582b22;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            margin: 0;
+            padding: 24px;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Bradley Hand', cursive;
+            -webkit-app-region: drag;
+        }
+        
+        /* Add these rules to make interactive elements clickable */
+        .task-input,
+        .add-button,
+        .task-checkbox,
+        .task-item,
+        button,
+        input {
+            -webkit-app-region: no-drag;
+            cursor: pointer;
+        }
+        
+        .task-input {
+            cursor: text;
+        }
+        
+        Also add this to the widget container to prevent dragging issues */
+         .widget-container {
+            background: rgba(231, 177, 177, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 50px;
+            padding: 12px 24px 24px 24px;
+            width: 500px;
+            height: 420px;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            -webkit-app-region: no-drag;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            margin-top: 0;
+            width: 100%;
+            max-width: 400px;
+            min-width: 350px;
+        }
+        
+        .date-card {
+            background: #f1e8e6;
+            border-radius: 20px;
+            padding: 10px;
+            color: rgb(172, 61, 61);
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(255, 109, 109, 0.3);
+            min-width: 100px;
+            margin-bottom: 0px;
+            flex-shrink: 0;
+        }
+        
+        .progress-section {
+            margin-bottom: 20px;
+            backdrop-filter: blur(500px);
+            flex: 1;
+            margin-left: 40px;
+            min-width: 200px;
+        }
+        
+        .day-name {
+            font-size: 16px;
+            font-weight: 1000;
+            margin-bottom: 8px;
+            /* opacity: 0.5; */
+        }
+        
+        .day-number {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 2px;
+        }
+        
+        .month-name {
+            font-size: 14px;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+        
+        .progress-section {
+            margin-bottom: 20px;
+            backdrop-filter: blur(500px);
+            flex: 1;
+            margin-left: 40px;
+        }
+        
+        .progress-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ecdddd;
+            margin-bottom: 12px;
+        }
+        
+        .progress-bar-container {
+            background: #ebc5bb;
+            border-radius: 20px;
+            height: 16px;
+            width: 200px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .progress-bar {
+            background: #eddad5;
+            height: 100%;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            background: rgb(172, 61, 61);
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.6s ease;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .progress-text {
+            color: #ebc5bb;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .progress-fill {
+            background: #a03939;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .task-input {
+            border: solid #e88d8d;
+            border-radius: 20px;
+            padding: 5px 40px;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: rgba(245, 212, 212, 0.9);
+            color: #825e5e;
+            font-weight: 700;
+            flex: 1;
+        }
+        
+        .task-input:focus {
+            border-color: #ff4d4d;
+            box-shadow: 0 0 0 3px rgba(174, 194, 137, 0.1);
+        }
+        
+        .add-button {
+            background: #F4DBDB;
+            color: rgb(173, 100, 100);
+            border: none;
+            border-radius: 20px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(244, 219, 219, 0.3);
+
+            margin-bottom: 20px;
+        }
+        
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244, 219, 219, 0.4);
+        }
+        
+        .tasks-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #F4DBDB;
+            margin-bottom: 20px;
+        }
+        
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 8px;
+            flex: 1;
+        }
+        
+        .task-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .task-list::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 3px;
+        }
+        
+        .task-list::-webkit-scrollbar-thumb {
+            background: rgba(174, 194, 137, 0.5);
+            border-radius: 3px;
+        }
+        
+        .task-item {
+            background: #eecbcb;
+            border-radius: 20px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(174, 194, 137, 0.2);
+        }
+        
+        .task-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(174, 194, 137, 0.3);
+        }
+        
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            border-radius: 4px;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .task-checkbox.checked {
+            background: white;
+        }
+        
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #AEC289;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .task-text {
+            flex: 1;
+            color: rgb(131, 49, 49);
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+        
+        .task-text.completed {
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+        
+        .remove-button {
+            width: 32px;
+            height: 32px;
+            background: #7d3e3e;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .remove-button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+        }
+        
+        .delete-button {
+            background: #F4DBDB;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .delete-button:hover {
+            background: #F4DBDB;
+            transform: scale(1.1);
+        }
+        
+        .refresh-button {
+            background: #e1a497;
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            -webkit-app-region: no-drag;
+        }
+        
+        .close-button {
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            position: absolute;
+            top: 20px;
+            right: 70px;
+            -webkit-app-region: no-drag;
+        }
+        
+        .close-button:hover {
+            background: #b71c1c;
+            transform: scale(1.1);
+        }
+        
+        /* Widget-specific styles */
+        .widget-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #8fbc8f, #e9ecef, #9acd32, #f06292);
+            border-radius: 26px;
+            z-index: -1;
+            opacity: 0.1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <div class="date-card">
+            <div class="day-name" id="day-name"></div>
+            <div class="day-number" id="day-number"></div>
+            <div class="month-name" id="month-name"></div>
+        </div>
+        <div class="progress-section">
+            <div class="progress-title">Progress:</div>
+            <div class="progress-bar-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+            <div class="progress-text" id="progress-label">0 / 0 tasks done</div>
+        </div>
+    </div>
+    
+    <div class="input-section">
+        <input type="text" class="task-input" id="newTask" placeholder="Input your task!">
+        <button class="add-button" id="addBtn">Add Task</button>
+    </div>
+    
+    <div class="tasks-title">My Tasks:</div>
+    <div class="task-list" id="taskList"></div>
+    
+    <script>
+        const addBtn = document.getElementById('addBtn');
+        const newTask = document.getElementById('newTask');
+        const taskList = document.getElementById('taskList');
+        const progressFill = document.getElementById('progress-fill');
+        const progressLabel = document.getElementById('progress-label');
+        
+
+        
+        // Set current date
+        const today = new Date();
+        const dayName = today.toLocaleString('en-US', { weekday: 'long' });
+        const dayNumber = today.getDate();
+        const monthName = today.toLocaleString('en-US', { month: 'long' });
+        
+        document.getElementById('day-name').textContent = dayName;
+        document.getElementById('day-number').textContent = dayNumber;
+        document.getElementById('month-name').textContent = monthName;
+        
+        function updateProgress() {
+            const tasks = document.querySelectorAll('.task-item');
+            const completed = document.querySelectorAll('.task-checkbox.checked');
+            const total = tasks.length;
+            const done = completed.length;
+            
+            const percentage = total === 0 ? 0 : (done / total) * 100;
+            progressFill.style.width = percentage + '%';
+            progressLabel.textContent = `${done} / ${total} tasks done`;
+        }
+        
+        function addTask() {
+            const taskText = newTask.value.trim();
+            if (taskText === '') return;
+            
+
+            
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-item';
+            
+            taskItem.innerHTML = `
+                <div class="task-checkbox" onclick="toggleTask(this)"></div>
+                <div class="task-text" ondblclick="editTask(this)">${taskText}</div>
+                <button class="remove-button" onclick="removeTask(this)">×</button>
+            `;
+            
+            taskList.appendChild(taskItem);
+            newTask.value = '';
+            updateProgress();
+        }
+        
+        function editTask(taskTextElement) {
+            const currentText = taskTextElement.textContent;
+            
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = currentText;
+            input.className = 'task-edit-input';
+            
+            // Style the input to match the task text
+            input.style.cssText = `
+                background: transparent;
+                border: 2px solid #F4DBDB;
+                border-radius: 8px;
+                padding: 4px 8px;
+                font-size: 14px;
+                font-weight: 600;
+                color: #F4DBDB;
+                width: 100%;
+                outline: none;
+            `;
+            
+            // Replace text with input
+            taskTextElement.style.display = 'none';
+            taskTextElement.parentNode.insertBefore(input, taskTextElement.nextSibling);
+            input.focus();
+            input.select();
+            
+            // Save on Enter or blur
+            function saveEdit() {
+                const newText = input.value.trim();
+                if (newText && newText !== currentText) {
+                    taskTextElement.textContent = newText;
+
+                }
+                taskTextElement.style.display = 'block';
+                input.remove();
+            }
+            
+            // Cancel on Escape
+            function cancelEdit() {
+                taskTextElement.style.display = 'block';
+                input.remove();
+            }
+            
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    saveEdit();
+                } else if (e.key === 'Escape') {
+                    cancelEdit();
+                }
+            });
+        }
+        
+        function toggleTask(checkbox) {
+
+            checkbox.classList.toggle('checked');
+            const taskText = checkbox.nextElementSibling;
+            taskText.classList.toggle('completed');
+            updateProgress();
+        }
+        
+        function removeTask(button) {
+            button.parentElement.remove();
+            updateProgress();
+        }
+        
+        // Function to close the app
+        function closeApp() {
+            if (window.require) {
+                const { remote } = window.require('electron');
+                const currentWindow = remote.getCurrentWindow();
+                currentWindow.close();
+            } else {
+                window.close();
+            }
+        }
+        
+        addBtn.addEventListener('click', addTask);
+        newTask.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTask();
+            }
+        });
+        
+        updateProgress();
+    </script>
+    <!-- Refresh and Close buttons -->
+    <button onclick="location.reload()" class="refresh-button">↻</button>
+    <button onclick="closeApp()" class="close-button">×</button>
+</body>
+</html>
